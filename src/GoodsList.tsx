@@ -6,7 +6,7 @@ type Props = {
   sortBy: string;
 };
 
-export const GoodsList: React.FC<Props> = ({ sortBy }) => {
+const GoodsListComponent: React.FC<Props> = ({ sortBy }) => {
   const [goods, setGoods] = useState<Good[]>([]);
 
   useEffect(() => {
@@ -19,12 +19,13 @@ export const GoodsList: React.FC<Props> = ({ sortBy }) => {
         case 'all':
           setGoods(await getAll());
           break;
-        case 'red':
-          setGoods(await getRedGoods());
-          break;
         case 'first-five':
           setGoods(await get5First());
           break;
+        case 'red':
+          setGoods(await getRedGoods());
+          break;
+
         default:
           setGoods([]);
           break;
@@ -44,3 +45,5 @@ export const GoodsList: React.FC<Props> = ({ sortBy }) => {
     </ul>
   );
 };
+
+export const GoodsList = React.memo(GoodsListComponent);
