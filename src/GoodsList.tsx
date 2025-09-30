@@ -8,6 +8,8 @@ type Props = {
 
 const GoodsListComponent: React.FC<Props> = ({ sortBy }) => {
   const [goods, setGoods] = useState<Good[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!sortBy) {
@@ -15,25 +17,55 @@ const GoodsListComponent: React.FC<Props> = ({ sortBy }) => {
     }
 
     const fetchGoods = async () => {
-      switch (sortBy) {
-        case 'all':
-          setGoods(await getAll());
-          break;
-        case 'first-five':
-          setGoods(await get5First());
-          break;
-        case 'red':
-          setGoods(await getRedGoods());
-          break;
+      setLoading(true); // перед початком запиту
+      setError(null); // скидаємо стару помилку
 
-        default:
-          setGoods([]);
-          break;
+      try {
+        switch (sortBy) {
+          case 'all': {
+            const allGoods = await getAll();
+
+            setGoods(allGoods);
+            break;
+          }
+
+          case 'first-five': {
+            const firstFive = await get5First();
+
+            setGoods(firstFive);
+            break;
+          }
+
+          case 'red': {
+            const redGoods = await getRedGoods();
+
+            setGoods(redGoods);
+            break;
+          }
+
+          default:
+            setGoods([]);
+            break;
+        }
+      } catch (err) {
+        setError('Не вдалося завантажити товари');
+        // eslint-disable-next-line no-console
+        console.error(err);
+      } finally {
+        setLoading(false); // в будь-якому випадку завершуємо
       }
     };
 
     fetchGoods();
   }, [sortBy]);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
     <ul>
